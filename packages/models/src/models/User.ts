@@ -73,7 +73,7 @@ UserModel.init({
     timestamps: true,
 })
 
-UserModel.beforeCreate(async (user:any) => {
+UserModel.beforeSave(async (user: UserModel) => {
     if (user.password) {
          const salt = await bcrypt.genSalt(10);
          user.password = await bcrypt.hash(user.password, salt);
