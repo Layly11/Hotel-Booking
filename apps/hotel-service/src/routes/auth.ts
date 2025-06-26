@@ -2,36 +2,26 @@ import express, { Request, Response, NextFunction } from 'express';
 import * as jose from 'jose'
 import passport from 'passport';
 import { UserModel } from '@hotel/models'
-import dotenv from 'dotenv'
 
-dotenv.config();
 
 const router = express.Router()
 
 router.post('/register', async (req: Request, res: Response, next: NextFunction) => {
     const {username, email, password } = req.body
-
+    console.log("Req_Body: ", req.body)
+    console.log("JWT_SECRET: ", process.env.JWT_SECRET)
     if (!username || !email || !password) {
       res.status(400).json({ msg: 'Please enter all fields' });
-      return
+      next()
     } 
     try {
-        let userByEmail = await UserModel.findOne({where: { email } })
-        if (userByEmail) {
-            res.status(400).json({ msg: 'User with this email already exists' });
-            return
-        }
-        let userByUsername = await UserModel.findOne({ where: { username } });
-        if (userByUsername) {
-            res.status(400).json({ msg: 'Username already exists' });
-            return
-        }
-
          const newUser = await UserModel.create({ username, email, password });
+         console.log('User Created:');
          res.status(201).json({ msg: 'User registered successfully', userId: newUser.id });
     } catch (error) {
-      res.status(500).send('Server Error');
-      next(error)
+        console.error('Register Error:', error);
+        res.status(500).send('Server Error');
+        next(error);
     }
 })
 
